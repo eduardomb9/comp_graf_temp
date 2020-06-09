@@ -3,6 +3,8 @@ from OpenGL.GLU import *
 import numpy as np
 from .base_furniture import BaseFurniture
 
+from ..scene import TextureLoader
+
 default_color = (0.318, 0.271, 0.224)
 
 ctrlpoints = [
@@ -47,26 +49,26 @@ verticies_frame = (
 )
 
 verticies_base = (
-    (2, -3.2, -0.8),  # 0
-    (2, -3, -0.8),  # 1
-    (-2, -3, -0.8),  # 2
-    (-2, -3.2, -0.8),  # 3
+    (2, -2.2, -0.8),  # 0
+    (2, -2, -0.8),  # 1
+    (-2, -2, -0.8),  # 2
+    (-2, -2.2, -0.8),  # 3
 
-    (2, -3.2, 0.8),  # 4
-    (2, -3, 0.8),  # 5
-    (-2, -3.2, 0.8),  # 6
-    (-2, -3, 0.8)  # 7
+    (2, -2.2, 0.8),  # 4
+    (2, -2, 0.8),  # 5
+    (-2, -2.2, 0.8),  # 6
+    (-2, -2, 0.8)  # 7
 )
 
 verticies_base_h = (
-    (0.5, -3.2, -0.1),  # 0
+    (0.5, -2, -0.1),  # 0
     (0.5, -1, -0.1),  # 1
     (-0.5, -1, -0.1),  # 2
-    (-0.5, -3.2, -0.1),  # 3
+    (-0.5, -2, -0.1),  # 3
 
-    (0.5, -3.2, 0.1),  # 4
+    (0.5, -2, 0.1),  # 4
     (0.5, -1, 0.1),  # 5
-    (-0.5, -3.2, 0.1),  # 6
+    (-0.5, -2, 0.1),  # 6
     (-0.5, -1, 0.1)  # 7
 )
 
@@ -88,7 +90,7 @@ faces = (
 
 def draw_base():
     glPushMatrix()
-    glTranslatef(0., 0., -0.3)
+    glTranslatef(0., 0.5, 0.)
     draw_frame(verticies_base)
     draw_frame(verticies_base_h)
     glPopMatrix()
@@ -116,17 +118,15 @@ def draw_frames():
     glPopMatrix()
 
 
-def draw_screen():
-    # glBindTexture(GL_TEXTURE_2D, screen_texture)
-    glPushMatrix()
-    glColor3f(0, 0, 0)
+def draw_screen(screen_texture):
+    glBindTexture(GL_TEXTURE_2D, screen_texture)
+
     glBegin(GL_QUADS)
     texIndexes = [(1, 0), (1, 1), (0, 1), (0, 0)]
     for vertex, tex in zip(verticies, texIndexes):
         glVertex3fv(vertex)
-        # glTexCoord2fv(tex)
+        glTexCoord2fv(tex)
     glEnd()
-    glPopMatrix()
 
 
 def draw_frame(v):
@@ -156,17 +156,28 @@ def draw_back():
 
 
 class Tv(BaseFurniture):
-    translate = [4, 0, -4]
-    scale = (1., 1., 1.)
+    translate = [14, -0.5, -8]
+    # translate = [0, -0.5, -8]
+    scale = (0.7, 0.7, 0.7)
+
+    def __init__(self, texture_loader: TextureLoader):
+        super().__init__(texture_loader)
+
+        self.texture = texture_loader.load_texture('tv.jpg')
 
     def draw_on_scene(self):
         glScalef(*self.scale)
-        glRotatef(180, 0., 1., 0.)
+        glRotatef(90, 0., 1., 0.)
         glTranslate(*self.translate)
         glColor4f(0.1, 0.1, 0.1, 0.5)
 
         draw_back()
         draw_frames()
-        draw_base()
 
-        draw_screen()
+        glPushMatrix()
+        glRotatef(180, 0., .0, 1.)
+        glRotatef(90, 1., .0, .0)
+        draw_base()
+        glPopMatrix()
+
+        draw_screen(self.texture)
